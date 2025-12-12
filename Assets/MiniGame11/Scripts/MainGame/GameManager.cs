@@ -2,6 +2,7 @@ using DG.Tweening;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace MiniGame11
@@ -24,6 +25,9 @@ namespace MiniGame11
 
         private bool isGameOver = false;
 
+        [SerializeField] private GameObject homePanel;
+        private string sceneName;
+
         void Awake()
         {
             if (Instance == null)
@@ -31,17 +35,34 @@ namespace MiniGame11
                 Instance = this;
             }
 
-            currentLevel = PlayerPrefs.GetInt("Level", 0);
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetUp();
+                LoadSceneManager.Instance.FadeInImage();
+            }
+        }
+
+        private void SetUp()
+        {
+            currentLevel = ProgressManager.GetProgress(sceneName);
+
             if (currentLevel >= map.transform.childCount)
             {
+                ProgressManager.SetProgress(sceneName, 0);
                 currentLevel = 0;
-                PlayerPrefs.SetInt("Level", 0);
             }
 
             map.transform.GetChild(currentLevel).gameObject.SetActive(true);
             txtFuel.text = "ENERRGY: " + numberFuel[currentLevel].ToString("D2");
         }
-
 
         public Vector3 GetPlayerPosition()
         {
@@ -78,15 +99,15 @@ namespace MiniGame11
             isGameOver = true;
             yield return new WaitForSeconds(0.4f);
             winPanel.SetActive(true);
-            int levelIndex = PlayerPrefs.GetInt("Level", 0) + 1;
-            if (PlayerPrefs.GetInt("LevelUnlocked", 0) < levelIndex)
-            {
-                PlayerPrefs.SetInt("LevelUnlocked", levelIndex);
-            }
-            PlayerPrefs.SetInt("Level", levelIndex);
-            PlayerPrefs.Save();
-            yield return new WaitForSeconds(1f);
 
+            currentLevel++;
+            ProgressManager.SetProgress(sceneName, currentLevel);
+            if (currentLevel >= map.transform.childCount)
+            {
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
+                yield break;
+            }
             NextLevel();
         }
         public IEnumerator LoseGame()
@@ -96,7 +117,7 @@ namespace MiniGame11
             losePanel.SetActive(true);
             yield return new WaitForSeconds(1f);
 
-            ReloadLevel();
+            NextLevel();
         }
 
         public bool IsGameOver()
@@ -107,15 +128,21 @@ namespace MiniGame11
         {
             isGameOver = true;
         }
-        public void ReloadLevel()
-        {
-            PlayerPrefs.SetInt("Level", currentLevel);
-            PlayerPrefs.Save();
-            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        }
         public void NextLevel()
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
+
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
 
     }

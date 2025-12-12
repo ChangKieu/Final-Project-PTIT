@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace MiniGame12
@@ -28,15 +29,39 @@ namespace MiniGame12
 
         private int currentLevel;
 
+        [SerializeField] private GameObject homePanel, winEffect;
+        private string sceneName;
+
         private void Start()
+        {
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetUp();
+                LoadSceneManager.Instance.FadeInImage();
+            }
+        }
+        private void SetUp()
         {
             LoadLevel();
             btnCheck.onClick.AddListener(CheckAnswer);
         }
-
         private void LoadLevel()
         {
-            currentLevel = PlayerPrefs.GetInt("Level", 0);
+            currentLevel = ProgressManager.GetProgress(sceneName);
+
+            if (currentLevel >= levels.Length)
+            {
+                ProgressManager.SetProgress(sceneName, 0);
+                currentLevel = 0;
+            }
 
             foreach (Transform child in hintParent)
                 Destroy(child.gameObject);
@@ -65,7 +90,7 @@ namespace MiniGame12
             Debug.Log($"User: {userInput} - Correct: {correct}");
             if (userInput == correct)
             {
-                NextLevel();
+                Next();
             }
             else
             {
@@ -96,16 +121,36 @@ namespace MiniGame12
             return cleaned;
         }
 
-        private void NextLevel()
+        private void Next()
         {
+            winEffect.SetActive(true);
+
             currentLevel++;
-            if (currentLevel >= levels.Length)
-                currentLevel = 0; 
+            ProgressManager.SetProgress(sceneName, currentLevel);
+            if (currentLevel >=levels.Length)
+            {
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
+                return;
+            }
+            NextLevel();
+        }
 
-            PlayerPrefs.SetInt("Level", currentLevel);
-            PlayerPrefs.Save();
+        public void NextLevel()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
 
-            LoadLevel();
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 }

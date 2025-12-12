@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 
@@ -38,11 +39,12 @@ namespace Minigame3
 
         [Header("Timer")]
         [SerializeField] private Image timerImage;
+        [SerializeField] private GameObject homePanel;
+        private string sceneName;
 
         private bool isGameOver = false;
         private bool isDrawing = false;
 
-        // Lưu màu của từng tile
         private Dictionary<Vector3Int, BrushColor> tileColors = new Dictionary<Vector3Int, BrushColor>();
 
         private void Awake()
@@ -50,17 +52,29 @@ namespace Minigame3
             if (Instance == null)
                 Instance = this;
 
-            SetUpLevel();
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetUpLevel();
+                LoadSceneManager.Instance.FadeInImage();
+            }
         }
 
         private void SetUpLevel()
         {
-            currentLevel = PlayerPrefs.GetInt("Level", 0);
+            currentLevel = ProgressManager.GetProgress(sceneName);
 
             if (currentLevel >= resultMap.childCount)
             {
+                ProgressManager.SetProgress(sceneName, 0);
                 currentLevel = 0;
-                PlayerPrefs.SetInt("Level", 0);
             }
 
             txtLevel.text = "Level " + (currentLevel + 1);
@@ -204,13 +218,14 @@ namespace Minigame3
         {
             isGameOver = true;
 
-            int levelIndex = PlayerPrefs.GetInt("Level", 0) + 1;
-
-            if (PlayerPrefs.GetInt("LevelUnlocked", 0) < levelIndex)
-                PlayerPrefs.SetInt("LevelUnlocked", levelIndex);
-
-            PlayerPrefs.SetInt("Level", levelIndex);
-            PlayerPrefs.Save();
+            currentLevel++;
+            ProgressManager.SetProgress(sceneName, currentLevel);
+            if (currentLevel >= resultMap.childCount)
+            {
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
+                yield break;
+            }
 
             winEffect.SetActive(true);
             yield return new WaitForSeconds(0.3f);
@@ -223,11 +238,6 @@ namespace Minigame3
             yield return new WaitForSeconds(0.7f);
             losePanel.SetActive(true);
         }
-
-        // =========================================
-        // GETTERS
-        // =========================================
-
         public Tilemap GetBoard() => board;
         public bool IsDrawing() => isDrawing;
         public bool IsGameOver() => isGameOver;
@@ -237,32 +247,21 @@ namespace Minigame3
         {
             return brushDatas[index].brushSprite;
         }
-        public void ReloadLevel()
-        {
-            PlayerPrefs.SetInt("Level", currentLevel);
-            PlayerPrefs.Save();
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
-            );
-        }
-
         public void NextLevel()
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(
-                UnityEngine.SceneManagement.SceneManager.GetActiveScene().name
-            );
-        }
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
 
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
         public void LoadHome()
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
-            PlayerPrefs.SetInt("Menu", 0);
-        }
-
-        public void LoadMenu()
-        {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
-            PlayerPrefs.SetInt("Menu", 1);
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 }

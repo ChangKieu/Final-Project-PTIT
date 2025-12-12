@@ -26,6 +26,7 @@ public class MiniGameItemUI : MonoBehaviour
         {
             progressSlider.gameObject.SetActive(false);
             txtProgress.text = "Done";
+            txtProgress.color = Color.white;
             return;
         }
 
@@ -37,9 +38,8 @@ public class MiniGameItemUI : MonoBehaviour
         }
         else
         {
-            progressSlider.maxValue = 1;
-            progressSlider.value = 0;
-            txtProgress.text = progress.ToString();
+            progressSlider.gameObject.SetActive(false);
+            txtProgress.gameObject.SetActive(false);
         }
 
 

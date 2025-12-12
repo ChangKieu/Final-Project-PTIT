@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using MiniGame4;
+using System.Collections;
 using System.Collections.Generic;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.Tilemaps;
 using UnityEngine.UI;
 namespace Minigame1
@@ -45,6 +47,8 @@ namespace Minigame1
 
         private bool isGameOver;
 
+        [SerializeField] private GameObject homePanel;
+        private string sceneName;
         private void Awake()
         {
             if (Instance == null)
@@ -52,16 +56,29 @@ namespace Minigame1
                 Instance = this;
             }
 
-            SetUpLevel();
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetUpLevel();
+                LoadSceneManager.Instance.FadeInImage();
+            }
         }
 
         private void SetUpLevel()
         {
-            currentLevel = PlayerPrefs.GetInt("Level", 0);
+            currentLevel = ProgressManager.GetProgress(sceneName);
+
             if (currentLevel >= listLevel.Length)
             {
+                ProgressManager.SetProgress(sceneName, 0);
                 currentLevel = 0;
-                PlayerPrefs.SetInt("Level", 0);
             }
             map.transform.GetChild(currentLevel).gameObject.SetActive(true);
             txtSubject.text = listLevel[currentLevel].listSubject[subjectIndex];
@@ -145,13 +162,14 @@ namespace Minigame1
             winEffect.SetActive(true);
             isGameOver = true;
 
-            int levelIndex = PlayerPrefs.GetInt("Level", 0) + 1;
-            if (PlayerPrefs.GetInt("LevelUnlocked", 0) < levelIndex)
+            currentLevel++;
+            ProgressManager.SetProgress(sceneName, currentLevel);
+            if (currentLevel >= listLevel.Length)
             {
-                PlayerPrefs.SetInt("LevelUnlocked", levelIndex);
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
+                yield break;
             }
-            PlayerPrefs.SetInt("Level", levelIndex);
-            PlayerPrefs.Save();
             yield return new WaitForSeconds(3f);
             winEffect.SetActive(false);
             NextLevel();
@@ -162,25 +180,24 @@ namespace Minigame1
             Debug.Log("Lose Game");
             isGameOver = true;
             yield return new WaitForSeconds(1f);
-            ReloadLevel();
-
-
+            NextLevel();
         }
 
-        public void ReloadLevel()
-        {
-            PlayerPrefs.SetInt("Level", currentLevel);
-            PlayerPrefs.Save();
-            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        }
         public void NextLevel()
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene(UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        }
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
 
-        public void LoadScene()
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
         {
-            UnityEngine.SceneManagement.SceneManager.LoadScene("Home");
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 

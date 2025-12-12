@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace MiniGame15
@@ -44,7 +45,8 @@ namespace MiniGame15
         private List<Vector2> originPos_answerChuoiMa = new List<Vector2>();
 
         private int[] shuffleIndex;
-
+        [SerializeField] private GameObject homePanel, winEffect;
+        private string sceneName;
         private void Awake()
         {
             Instance = this;
@@ -52,13 +54,35 @@ namespace MiniGame15
 
         private void Start()
         {
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetUp();
+                LoadSceneManager.Instance.FadeInImage();
+            }
+        }
+        private void SetUp()
+        {
+            currentLevel = ProgressManager.GetProgress(sceneName);
+
+            if (currentLevel >= levels.Length)
+            {
+                ProgressManager.SetProgress(sceneName, 0);
+                currentLevel = 0;
+            }
             btnCheck1.onClick.AddListener(CheckStep1);
             btnCheck2.onClick.AddListener(CheckStep2);
             btnCheck3.onClick.AddListener(CheckStep3);
 
             LoadLevel(currentLevel);
         }
-
         private void LoadLevel(int id)
         {
             curData = levels[id];
@@ -263,7 +287,17 @@ namespace MiniGame15
 
             if (textAnswer == curDataAnswer)
             {
-                Debug.Log("WIN GAME!");
+                winEffect.SetActive(true);
+
+                currentLevel++;
+                ProgressManager.SetProgress(sceneName, currentLevel);
+                if (currentLevel >= levels.Length)
+                {
+                    ProgressManager.SetDone(sceneName);
+                    LoadSceneManager.Instance.ShowPanelDone();
+                    return;
+                }
+                NextLevel();
             }
             else
             {
@@ -292,6 +326,23 @@ namespace MiniGame15
             string cleaned = Regex.Replace(withoutDiacritics, @"[^a-z0-9]+", "");
 
             return cleaned;
+        }
+
+        public void NextLevel()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
+
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 }

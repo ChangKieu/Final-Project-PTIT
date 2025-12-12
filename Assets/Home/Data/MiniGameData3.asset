@@ -12,6 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44be302c25f9fda40b523b55de3df0cd, type: 3}
   m_Name: MiniGameData3
   m_EditorClassIdentifier: 
-  sceneName: MainGameMiniGame11
-  icon: {fileID: 21300000, guid: ddb49e06ed548e742804e31011316965, type: 3}
-  totalLevels: 0
+  sceneName: MainGameMiniGame3
+  icon: {fileID: 21300000, guid: 3d43ff260fdb19f4f80a9b5412b3cd8a, type: 3}
+  totalLevels: 5

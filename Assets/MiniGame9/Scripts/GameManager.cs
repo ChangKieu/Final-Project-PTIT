@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MiniGame9
 {
@@ -16,9 +17,24 @@ namespace MiniGame9
         private CardController secondCard;
         private int pairLeft;
 
+        [SerializeField] private GameObject homePanel, winEffect;
+        private string sceneName;
+
         void Start()
         {
-            SetupCards();
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetupCards();
+                LoadSceneManager.Instance.FadeInImage();
+            }
         }
 
         void SetupCards()
@@ -69,7 +85,10 @@ namespace MiniGame9
                 pairLeft--;
                 if (pairLeft <= 0)
                 {
-                    Debug.Log("YOU WIN!");
+                    winEffect.SetActive(true);
+                    ProgressManager.SetDone(sceneName);
+                    LoadSceneManager.Instance.ShowPanelDone();
+                    return;
                 }
             }
             else
@@ -90,7 +109,26 @@ namespace MiniGame9
                 (list[i], list[rnd]) = (list[rnd], list[i]);
             }
         }
+
+        public void NextLevel()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
+
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
+        }
     }
+
+
 
     [System.Serializable]
     public class CardData

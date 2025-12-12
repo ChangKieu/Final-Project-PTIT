@@ -1,6 +1,7 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace MiniGame10
@@ -38,9 +39,24 @@ namespace MiniGame10
         private int timeRemaining = 0;
         private Coroutine timerRoutine;
 
+        [SerializeField] private GameObject homePanel;
+        private string sceneName;
+
         void Start()
         {
-            SetUp();
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetUp();
+                LoadSceneManager.Instance.FadeInImage();
+            }
         }
 
         private void SetUp()
@@ -53,11 +69,12 @@ namespace MiniGame10
 
         void SetupGrid()
         {
-            currentLevel = PlayerPrefs.GetInt("Level", 0);
+            currentLevel = ProgressManager.GetProgress(sceneName);
+
             if (currentLevel >= levelDatas.Count)
             {
+                ProgressManager.SetProgress(sceneName, 0);
                 currentLevel = 0;
-                PlayerPrefs.SetInt("Level", 0);
             }
 
             levelCardCount = levelDatas[currentLevel].listSprite.Count;
@@ -101,9 +118,6 @@ namespace MiniGame10
             }
         }
 
-        // -------------------------
-        // 🔥 TIMER SETUP
-        // -------------------------
         void SetupTimer()
         {
             if (timerRoutine != null)
@@ -132,7 +146,6 @@ namespace MiniGame10
                 Lose();
         }
 
-        // -------------------------
 
         public void OnCardClicked(CardController card)
         {
@@ -174,9 +187,16 @@ namespace MiniGame10
             if (isGameOver) return;
             isGameOver = true;
             winEffect.SetActive(true);
+
             currentLevel++;
-            PlayerPrefs.SetInt("Level", currentLevel);
-            Invoke(nameof(NextLevel), 1f);
+            ProgressManager.SetProgress(sceneName, currentLevel);
+            if (currentLevel >= levelDatas.Count)
+            {
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
+                return;
+            }
+            NextLevel();
         }
 
         void Lose()
@@ -184,8 +204,7 @@ namespace MiniGame10
             if (isGameOver) return;
 
             isGameOver = true;
-            Debug.Log("YOU LOSE!");
-            // popupLose.SetActive(true);
+            NextLevel();
         }
 
         void Shuffle<T>(List<T> list)
@@ -197,13 +216,21 @@ namespace MiniGame10
             }
         }
 
-        void NextLevel()
+        public void NextLevel()
         {
-            foreach (var card in spawnedCards)
-                Destroy(card.gameObject);
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
 
-            winEffect.SetActive(false);
-            SetUp();
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 }

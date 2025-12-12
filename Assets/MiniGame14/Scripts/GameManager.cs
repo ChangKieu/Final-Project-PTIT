@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace MiniGame14 
 {
@@ -28,7 +29,10 @@ namespace MiniGame14
         public float speedIncrease = 0.5f;
 
         private float gameSpeed;
-        private bool isGameOver = false;
+        private bool isGameOver = true;
+
+        [SerializeField] private GameObject homePanel;
+        private string sceneName;
 
         private void Awake()
         {
@@ -38,6 +42,24 @@ namespace MiniGame14
 
         private void Start()
         {
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetUp();
+                LoadSceneManager.Instance.FadeInImage();
+            }
+        }
+
+        private void SetUp()
+        {
+            isGameOver = false;
             gameSpeed = baseSpeed;
             SpawnObstacle();
             RandomPlayerType();
@@ -102,11 +124,29 @@ namespace MiniGame14
             else
             {
                 isGameOver = true;
+                NextLevel();
             }
         }
         public bool IsGameOver()
         {
             return isGameOver;
+        }
+
+        public void NextLevel()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
+
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace MiniGame13
@@ -21,7 +22,10 @@ namespace MiniGame13
 
         private int lastWinner = 1;
         private GameObject currentBall;
-        private bool isGameOver = false;
+        private bool isGameOver = true;
+
+        [SerializeField] private GameObject homePanel, winEffect;
+        private string sceneName;
         private void Awake()
         {
             Ins = this;
@@ -29,10 +33,26 @@ namespace MiniGame13
 
         private void Start()
         {
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetUp();
+                LoadSceneManager.Instance.FadeInImage();
+            }
+        }
+        private void SetUp()
+        {
+            isGameOver = false;
             UpdateScoreText();
             SpawnBall();
         }
-
         public void SpawnBall()
         {
             if (isGameOver) return;
@@ -93,14 +113,36 @@ namespace MiniGame13
             if (scorePlayer >= 3)
             {
                 isGameOver = true;
-                Debug.Log("PLAYER WIN GAME!");
+
+                winEffect.SetActive(true);
+
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
+                return;
             }
 
             if (scoreBot >= 3)
             {
                 isGameOver = true;
-                Debug.Log("BOT WIN GAME!");
+                NextLevel();
             }
+        }
+
+        public void NextLevel()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
+
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 

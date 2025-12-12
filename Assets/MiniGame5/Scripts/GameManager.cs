@@ -1,7 +1,9 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using UnityEngine.UI;
+﻿using MiniGame4;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace MiniGame5
 {
@@ -22,7 +24,8 @@ namespace MiniGame5
 
         private List<LetterDrag> spawnedLetters = new List<LetterDrag>();
         private List<AnswerSlot> spawnedSlots = new List<AnswerSlot>();
-
+        [SerializeField] private GameObject homePanel, winEffect;
+        private string sceneName;
         private void Awake()
         {
             if(Instance == null)
@@ -33,7 +36,19 @@ namespace MiniGame5
 
         private void Start()
         {
-            SpawnNewQuestion();
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SpawnNewQuestion();
+                LoadSceneManager.Instance.FadeInImage();
+            }
         }
 
         public Transform LetterSpawnPointTransform()
@@ -45,11 +60,12 @@ namespace MiniGame5
         {
             ClearOldObjects();
 
-            currentIndex = PlayerPrefs.GetInt("Level", 0);
+            currentIndex = ProgressManager.GetProgress(sceneName);
+
             if (currentIndex >= listHint.Length)
             {
+                ProgressManager.SetProgress(sceneName, 0);
                 currentIndex = 0;
-                PlayerPrefs.SetInt("Level", 0);
             }
 
             txtHint.text = listHint[currentIndex];
@@ -133,16 +149,37 @@ namespace MiniGame5
                     return;
             }
 
-            StartCoroutine(WinGame());
+            WinGame();
         }
 
-        private IEnumerator WinGame()
+        private void WinGame()
         {
-            Debug.Log("YOU WIN!");
+            winEffect.SetActive(true);
+            currentIndex++;
+            ProgressManager.SetProgress(sceneName, currentIndex);
+            if (currentIndex >= listHint.Length)
+            {
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
+                return;
+            }
+            NextLevel();
+        }
+        public void NextLevel()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
 
-            yield return new WaitForSeconds(1f);
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
 
-            SpawnNewQuestion();
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using DG.Tweening;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace Minigame2
@@ -12,12 +13,15 @@ namespace Minigame2
         [SerializeField] private GameObject ballPrefab;
         [SerializeField] private Transform ballSpawnPoint;
         [SerializeField] private Text scoreText;
+        [SerializeField] private Text higSscoreText;
         [SerializeField] private Text timerText;
-        [SerializeField] private GameObject panelWin, panelLose;
+        [SerializeField] private GameObject panelOver;
 
         private int score = 0;
         private float timeLeft = 60f;
         private bool isGameOver = false;
+        [SerializeField] private GameObject homePanel;
+        private string sceneName;
 
         private void Awake()
         {
@@ -26,7 +30,19 @@ namespace Minigame2
 
         private void Start()
         {
-            SpawnNewBall();
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SpawnNewBall();
+                LoadSceneManager.Instance.FadeInImage();
+            }
         }
 
         private void Update()
@@ -39,21 +55,26 @@ namespace Minigame2
             int seconds = Mathf.FloorToInt(timeLeft % 60);
             timerText.text = string.Format("{0:00}:{1:00}", minutes, seconds);
 
+            int highScore = PlayerPrefs.GetInt("HighScore2", 0);
+            higSscoreText.text = "High Score: " + highScore;
+
             if (timeLeft <= 0)
-                EndGame(false);
+                EndGame();
         }
 
         public void AddScore()
         {
             score++;
+            int highScore = PlayerPrefs.GetInt("HighScore2", 0);
+            if (score > highScore)
+            {
+                PlayerPrefs.SetInt("HighScore2", score);
+                higSscoreText.text = "High Score: " + score;
+            }
+
             scoreText.text = "Score: " + score;
 
             scoreText.transform.DOPunchScale(Vector3.one * 0.3f, 0.3f, 5);
-
-            if (score >= 10)
-            {
-                EndGame(true);
-            }
         }
 
         public void SpawnBall()
@@ -69,23 +90,32 @@ namespace Minigame2
             Instantiate(ballPrefab, ballSpawnPoint.position, Quaternion.identity);
         }
 
-        private void EndGame(bool win)
+        private void EndGame()
         {
             isGameOver = true;
-            if(win)
-            {
-                panelWin.SetActive(true);
-            }
-            else
-            {
-                panelLose.SetActive(true);
-            }
-
+            
+            panelOver.SetActive(true);
         }
 
         public bool IsGameOver()
         {
             return isGameOver;
+        }
+        public void NextLevel()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
+
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 }

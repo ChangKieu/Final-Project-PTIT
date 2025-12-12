@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using MiniGame4;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace MiniGame7
@@ -26,13 +28,26 @@ namespace MiniGame7
         [HideInInspector] public List<AnswerDrag> listAnswerDrag = new List<AnswerDrag>();
 
         private int currentIndex = 0;
-
+        [SerializeField] private GameObject homePanel;
+        private string sceneName;
         private void Awake()
         {
             if (Instance == null)
                 Instance = this;
 
-            SetUp();
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                SetUp();
+                LoadSceneManager.Instance.FadeInImage();
+            }
         }
 
         public void SetUp()
@@ -42,13 +57,14 @@ namespace MiniGame7
 
             listAnswerDrag.Clear();
 
-            currentIndex = PlayerPrefs.GetInt("Level", 0);
+            currentIndex = ProgressManager.GetProgress(sceneName);
 
             if (currentIndex >= listQuestion.Length)
             {
+                ProgressManager.SetProgress(sceneName, 0);
                 currentIndex = 0;
-                PlayerPrefs.SetInt("Level", 0);
             }
+
 
             hintImg.sprite = listHint[currentIndex];
             string[] answers = listAnswers[currentIndex].answer;
@@ -120,6 +136,33 @@ namespace MiniGame7
 
             characterAnimator.SetBool("isCorrect", true);
             winEffect.SetActive(true);
+
+            currentIndex++;
+            ProgressManager.SetProgress(sceneName, currentIndex);
+            if (currentIndex >= listQuestion.Length)
+            {
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
+                return;
+            }
+            NextLevel();
+        }
+
+        public void NextLevel()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
+
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 }

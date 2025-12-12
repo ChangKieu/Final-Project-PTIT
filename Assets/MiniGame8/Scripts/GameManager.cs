@@ -1,5 +1,7 @@
 ﻿using DG.Tweening;
+using MiniGame4;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 namespace MiniGame8
@@ -41,6 +43,8 @@ namespace MiniGame8
         private int foundCount = 0;
         private int totalPoints = 0;
 
+        [SerializeField] private GameObject homePanel;
+        private string sceneName;
         private void Awake()
         {
             Instance = this;
@@ -48,17 +52,30 @@ namespace MiniGame8
 
         private void Start()
         {
-            LoadLevel();
+            sceneName = SceneManager.GetActiveScene().name;
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
+            {
+                homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
+            }
+            else
+            {
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
+                homePanel.SetActive(false);
+                LoadLevel();
+                LoadSceneManager.Instance.FadeInImage();
+            }
         }
 
         public void LoadLevel()
         {
             winEffect.SetActive(false);
-            currentLevel = PlayerPrefs.GetInt("Level", 0);
+            currentLevel = ProgressManager.GetProgress(sceneName);
+
             if (currentLevel >= levels.Length)
             {
+                ProgressManager.SetProgress(sceneName, 0);
                 currentLevel = 0;
-                PlayerPrefs.SetInt("Level", 0);
             }
 
             foundCount = 0;
@@ -122,25 +139,40 @@ namespace MiniGame8
 
             if (foundCount >= totalPoints)
             {
-                Debug.Log("WIN LEVEL!");
-                NextLevel();
+                Next();
             }
         }
 
-        private void NextLevel()
+        private void Next()
         {
             winEffect.SetActive(true);
+
             currentLevel++;
+            ProgressManager.SetProgress(sceneName, currentLevel);
             if (currentLevel >= levels.Length)
             {
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
                 return;
             }
+            NextLevel();
+        }
 
-            DOVirtual.DelayedCall(1f, () =>
-            {
-                PlayerPrefs.SetInt("Level", currentLevel);
-                LoadLevel();
-            });
+        public void NextLevel()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
+
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
+        }
+        public void LoadExit()
+        {
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
+        }
+        public void LoadHome()
+        {
+            LoadSceneManager.Instance.LoadScene("Home");
         }
     }
 

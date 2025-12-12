@@ -28,39 +28,41 @@ namespace MiniGame4
         [SerializeField] private Button btnOption2;
 
         [Header("Effects")]
-        [SerializeField] private GameObject winEffect, homePanel;
+        [SerializeField] private GameObject winEffect;
 
         private int currentIndex = 0;
         private bool isAnswering = false;
 
+        [SerializeField] private GameObject homePanel;
         private string sceneName;
 
         private void Start()
         {
             sceneName = SceneManager.GetActiveScene().name;
-            if (PlayerPrefs.GetInt("Menu", 0) == 0)
+            if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
             {
                 homePanel.SetActive(true);
+                LoadSceneManager.Instance.FadeIn();
             }
             else
             {
-                PlayerPrefs.SetInt("Menu", 0);
+                PlayerPrefs.SetInt("Menu" + sceneName, 0);
                 homePanel.SetActive(false);
                 LoadQuestion();
+                LoadSceneManager.Instance.FadeInImage();
             }
-            LoadSceneManager.Instance.FadeIn();
         }
 
         private void LoadQuestion()
         {
             isAnswering = false;
 
-            currentIndex = PlayerPrefs.GetInt($"MiniGame_{sceneName}_Progress", 0);
+            currentIndex = ProgressManager.GetProgress(sceneName);
 
             if (currentIndex >= miniGame4Datas.Length)
             {
-                PlayerPrefs.SetInt($"MiniGame_{sceneName}_Progress", 0);
-                PlayerPrefs.Save();
+                ProgressManager.SetProgress(sceneName, 0);
+                currentIndex = 0;
             }
 
             var data = miniGame4Datas[currentIndex];
@@ -86,6 +88,8 @@ namespace MiniGame4
 
         private void ShuffleButtons()
         {
+            int rand = Random.Range(0, 2);
+            if (rand == 0) return;
             RectTransform r1 = btnOption1.GetComponent<RectTransform>();
             RectTransform r2 = btnOption2.GetComponent<RectTransform>();
 
@@ -122,25 +126,27 @@ namespace MiniGame4
         private void NextQuestion()
         {
             currentIndex++;
-            PlayerPrefs.SetInt($"MiniGame_{sceneName}_Progress", currentIndex);
-            PlayerPrefs.Save();
+            ProgressManager.SetProgress(sceneName, currentIndex);
+            if (currentIndex >= miniGame4Datas.Length)
+            {
+                ProgressManager.SetDone(sceneName);
+                LoadSceneManager.Instance.ShowPanelDone();
+                return;
+            }
             NextLevel();
-        }
-
-        private void LoadSceneWithTransition(bool isReplay)
-        {
-            PlayerPrefs.SetInt("Menu", isReplay ? 1 : 0);
-
-            LoadSceneManager.Instance.LoadScene(sceneName);
         }
 
         public void NextLevel()
         {
-            LoadSceneWithTransition(true);
+            PlayerPrefs.SetInt("Menu" + sceneName, 1);
+
+            LoadSceneManager.Instance.LoadSceneImg(sceneName);
         }
         public void LoadExit()
         {
-            LoadSceneWithTransition(false);
+            PlayerPrefs.SetInt("Menu" + sceneName, 0);
+
+            LoadSceneManager.Instance.LoadScene(sceneName);
         }
         public void LoadHome()
         {

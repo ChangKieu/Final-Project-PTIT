@@ -70,6 +70,7 @@ namespace Minigame1
 
             if (isJumping && IsGrounded())
             {
+                AudioManager.Instance.PlayMove();
                 rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
                 isJumping = false;
             }

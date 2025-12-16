@@ -86,6 +86,7 @@ namespace Minigame1
             {
                 rotate = false;
                 Rotate(1);
+                AudioManager.Instance.PlayJump();
             }
 
             if (Input.GetKeyDown(KeyCode.Space) || place)
@@ -93,6 +94,8 @@ namespace Minigame1
                 GameManager.Instance.NextSubject();
                 place = false;
                 HardDrop();
+                AudioManager.Instance.PlayPlace();
+
             }
 
             if (Time.time > moveTime)
@@ -143,16 +146,20 @@ namespace Minigame1
                 if (Move(Vector2Int.down))
                 {
                     stepTime = Time.time + stepDelay;
+                    AudioManager.Instance.PlayJump();
                 }
             }
 
             if (Input.GetKey(KeyCode.LeftArrow) || moveLeft)
             {
                 Move(Vector2Int.left);
+                AudioManager.Instance.PlayJump();
             }
             else if (Input.GetKey(KeyCode.RightArrow) || moveRight)
             {
                 Move(Vector2Int.right);
+                AudioManager.Instance.PlayJump();
+
             }
         }
 

@@ -28,6 +28,8 @@ namespace MiniGame5
             placedLetter = drag;
 
             GameManager.Instance.CheckWinCondition();
+            AudioManager.Instance.PlayDone();
+
         }
 
         public bool IsCorrect()

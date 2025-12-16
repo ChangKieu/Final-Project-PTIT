@@ -161,7 +161,7 @@ namespace Minigame1
             Debug.Log("Win Game");
             winEffect.SetActive(true);
             isGameOver = true;
-
+            AudioManager.Instance.PlayWin();
             currentLevel++;
             ProgressManager.SetProgress(sceneName, currentLevel);
             if (currentLevel >= listLevel.Length)
@@ -178,6 +178,7 @@ namespace Minigame1
         public IEnumerator LoseGame()
         {
             Debug.Log("Lose Game");
+            AudioManager.Instance.PlayLose();
             isGameOver = true;
             yield return new WaitForSeconds(1f);
             NextLevel();

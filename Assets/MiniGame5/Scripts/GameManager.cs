@@ -146,7 +146,9 @@ namespace MiniGame5
             foreach (AnswerSlot slot in spawnedSlots)
             {
                 if (!slot.IsCorrect())
+                {
                     return;
+                }
             }
 
             WinGame();
@@ -154,6 +156,7 @@ namespace MiniGame5
 
         private void WinGame()
         {
+            AudioManager.Instance.PlayWin();
             winEffect.SetActive(true);
             currentIndex++;
             ProgressManager.SetProgress(sceneName, currentIndex);

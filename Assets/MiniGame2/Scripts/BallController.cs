@@ -33,7 +33,7 @@ namespace Minigame2
             if (!isThrown)
             {
                 GameManager.Instance.SpawnBall();
-
+                AudioManager.Instance.PlayMove();
                 rb.bodyType = RigidbodyType2D.Dynamic;
                 Vector2 endTouchPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 Vector2 direction = (startTouchPos - endTouchPos);

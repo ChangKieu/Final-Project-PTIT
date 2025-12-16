@@ -101,9 +101,6 @@ namespace Minigame3
             }
         }
 
-        // =========================================
-        // TIMER
-        // =========================================
 
         private void StartTimer(float duration)
         {
@@ -218,6 +215,8 @@ namespace Minigame3
         {
             isGameOver = true;
 
+            AudioManager.Instance.PlayWin();
+
             currentLevel++;
             ProgressManager.SetProgress(sceneName, currentLevel);
             if (currentLevel >= resultMap.childCount)
@@ -235,6 +234,9 @@ namespace Minigame3
         public IEnumerator LoseGame()
         {
             isGameOver = true;
+
+            AudioManager.Instance.PlayLose();
+
             yield return new WaitForSeconds(0.7f);
             losePanel.SetActive(true);
         }

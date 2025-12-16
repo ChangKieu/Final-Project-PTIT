@@ -108,7 +108,7 @@ public class LoadSceneManager : MonoBehaviour
         c.a = 0f;
         imgTransition.color = c;
 
-        imgTransition.DOFade(1f, duration).OnComplete(() =>
+        imgTransition.DOFade(1f, duration).SetDelay(1f).OnComplete(() =>
         {
             onDone?.Invoke();
         });

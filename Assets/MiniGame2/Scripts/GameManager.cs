@@ -86,14 +86,15 @@ namespace Minigame2
         private void SpawnNewBall()
         {
             if (isGameOver) return;
-
+            AudioManager.Instance.PlayJump();
             Instantiate(ballPrefab, ballSpawnPoint.position, Quaternion.identity);
         }
 
         private void EndGame()
         {
             isGameOver = true;
-            
+
+            AudioManager.Instance.PlayWin();
             panelOver.SetActive(true);
         }
 

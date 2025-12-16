@@ -46,6 +46,7 @@ namespace Minigame3
 
         public void Draw()
         {
+            AudioManager.Instance.PlayMagic();
             GameManager.Instance.SetIsDrawing(true);
 
             var child1 = transform.GetChild(1);

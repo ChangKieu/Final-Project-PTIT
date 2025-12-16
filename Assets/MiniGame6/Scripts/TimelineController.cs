@@ -29,6 +29,7 @@ namespace MiniGame6
 
         public void OnDrag(PointerEventData eventData)
         {
+            AudioManager.Instance.PlayPlace();
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 (RectTransform)timelineHandle.parent,
                 eventData.position,

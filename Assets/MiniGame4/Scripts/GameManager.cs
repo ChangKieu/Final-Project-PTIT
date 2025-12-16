@@ -109,14 +109,17 @@ namespace MiniGame4
         private void OnChoose(bool isCorrect)
         {
             if (isAnswering) return;
+            AudioManager.Instance.PlayClick();
             isAnswering = true;
 
             if (isCorrect)
             {
+                AudioManager.Instance.PlayWin();
                 winEffect.SetActive(true);
             }
             else
             {
+                AudioManager.Instance.PlayLose();
                 Show(true);
             }
 

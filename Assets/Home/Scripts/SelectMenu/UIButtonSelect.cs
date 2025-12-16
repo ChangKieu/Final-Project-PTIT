@@ -5,6 +5,7 @@ public class UIButtonSelect : MonoBehaviour
 {
     private Button[] listButton;
     [SerializeField] private Sprite onButton, offButton;
+    [SerializeField] private Slider bgmSlider, sfxSlider;
 
     private void Awake()
     {
@@ -13,7 +14,10 @@ public class UIButtonSelect : MonoBehaviour
         SetButtonActive(0);
         LoadSceneManager.Instance.FadeIn();
     }
-
+    private void Start()
+    {
+        AudioManager.Instance.SetUpAudio(bgmSlider, sfxSlider);
+    }
     public void SetButtonActive(int index)
     {
         for (int i = 0; i < listButton.Length; i++)

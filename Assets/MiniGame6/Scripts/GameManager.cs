@@ -52,8 +52,6 @@ namespace MiniGame6
                 currentLevel = 0;
             }
 
-            currentLevel = 0;
-
             btnPlay.onClick.AddListener(PressPlay);
             map.GetChild(currentLevel).gameObject.SetActive(true);
 
@@ -106,7 +104,8 @@ namespace MiniGame6
         public void Win()
         {
             if (!gamePlaying) return;
-
+            Debug.Log("win");
+            AudioManager.Instance.PlayWin();
             currentLevel++;
             ProgressManager.SetProgress(sceneName, currentLevel);
             if (currentLevel >= map.childCount)
@@ -124,7 +123,7 @@ namespace MiniGame6
         public void Lose()
         {
             if (!gamePlaying) return;
-
+            AudioManager.Instance.PlayLose();
             player.isMoving = false;
             gamePlaying = false;
             NextLevel();

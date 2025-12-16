@@ -12,7 +12,7 @@ namespace MiniGame15
         private Canvas canvas;
         private Vector2 offset;
 
-        public Transform currentSlot = null;   // slot hiện tại đang đứng
+        public Transform currentSlot = null;   
 
         private void Awake()
         {
@@ -24,7 +24,6 @@ namespace MiniGame15
         {
             startPos = rect.anchoredPosition;
 
-            // Tính offset để giữ vị trí chuẩn
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
                 canvas.transform as RectTransform,
                 eventData.position,
@@ -34,7 +33,6 @@ namespace MiniGame15
 
             offset = rect.anchoredPosition - mousePos;
 
-            // Khi bắt đầu kéo, bỏ liên kết slot cũ
             currentSlot = null;
         }
 
@@ -53,6 +51,7 @@ namespace MiniGame15
         public void OnEndDrag(PointerEventData eventData)
         {
             Transform newSlot = GameManager.Instance.GetSlotAtStep1(eventData.position);
+            AudioManager.Instance.PlayPlace();
 
             if (newSlot != null)
             {

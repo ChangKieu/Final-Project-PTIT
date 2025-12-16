@@ -36,7 +36,6 @@ namespace MiniGame13
 
         void AutoMove()
         {
-            // Bóng chưa sang sân bot → không di chuyển
             if (ball.position.x > maxX) return;
 
             float tx = Mathf.Clamp(ball.position.x, minX, maxX);
@@ -85,8 +84,14 @@ namespace MiniGame13
 
         public void ResetPos()
         {
+            transform.GetChild(0).gameObject.SetActive(false);
             transform.position = startPos;
             rb.linearVelocity = Vector2.zero;
+        }
+        public void SetEmo(Sprite emo)
+        {
+            transform.GetChild(0).gameObject.SetActive(true);
+            transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = emo;
         }
 
         public bool CanJump() { return canJump; }

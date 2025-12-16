@@ -75,6 +75,7 @@ namespace MiniGame11
         public void AddNumberHome()
         {
             countHome++;
+            AudioManager.Instance.PlayDone();
         
         }
         public void CheckNumberHome()
@@ -96,6 +97,10 @@ namespace MiniGame11
         }
         public IEnumerator WinGame()
         {
+            if (isGameOver) yield break;
+
+            AudioManager.Instance.PlayWin();
+
             isGameOver = true;
             yield return new WaitForSeconds(0.4f);
             winPanel.SetActive(true);
@@ -112,6 +117,9 @@ namespace MiniGame11
         }
         public IEnumerator LoseGame()
         {
+            if (isGameOver) yield break;
+
+            AudioManager.Instance.PlayLose();
             isGameOver = true;
             yield return new WaitForSeconds(0.4f);
             losePanel.SetActive(true);

@@ -19,6 +19,7 @@ namespace MiniGame13
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
+            AudioManager.Instance.PlayCollision();
             if (collision.collider.CompareTag("Ground"))
             {
                 transform.DOScale(Vector3.zero, 0.3f).OnComplete(() =>

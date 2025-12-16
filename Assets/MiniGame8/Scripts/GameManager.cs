@@ -133,7 +133,7 @@ namespace MiniGame8
         public void FoundPoint()
         {
             foundCount++;
-
+            AudioManager.Instance.PlayDone();
             if (foundCount - 1 < starContainer.childCount)
                 starContainer.GetChild(foundCount - 1).GetChild(0).gameObject.SetActive(true);
 
@@ -146,7 +146,7 @@ namespace MiniGame8
         private void Next()
         {
             winEffect.SetActive(true);
-
+            AudioManager.Instance.PlayWin();
             currentLevel++;
             ProgressManager.SetProgress(sceneName, currentLevel);
             if (currentLevel >= levels.Length)

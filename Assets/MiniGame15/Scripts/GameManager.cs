@@ -28,9 +28,9 @@ namespace MiniGame15
 
         [Header("UI Containers")]
         [SerializeField] private Transform maKhoaContainer;
-        [SerializeField] private Transform answerMaKhoa;     // Slot Step 1
+        [SerializeField] private Transform answerMaKhoa;     
         [SerializeField] private Transform chuoiMaContainer;
-        [SerializeField] private Transform answerChuoiMa;    // Step 2
+        [SerializeField] private Transform answerChuoiMa;    
 
         [SerializeField] private InputField answer;
 
@@ -206,6 +206,8 @@ namespace MiniGame15
 
             if (correct == curData.listChuoiMaSprites.Length)
             {
+                AudioManager.Instance.PlayDone();
+
                 btnCheck1.gameObject.SetActive(false);
                 step2.SetActive(true);
                 for (int i = 0; i < curData.listChuoiMaSprites.Length; i++)
@@ -221,15 +223,15 @@ namespace MiniGame15
         }
 
         private void ResetStep1Items()
-{
-    for (int i = 0; i < curData.listChuoiMaSprites.Length; i++)
-    {
-        var rect = maKhoaContainer.GetChild(i).GetComponent<RectTransform>();
-        rect.anchoredPosition = originPos_maKhoa[shuffleIndex[i]];
+        {
+            for (int i = 0; i < curData.listChuoiMaSprites.Length; i++)
+            {
+                var rect = maKhoaContainer.GetChild(i).GetComponent<RectTransform>();
+                rect.anchoredPosition = originPos_maKhoa[shuffleIndex[i]];
 
-        maKhoaContainer.GetChild(i).GetComponent<ItemDragStep1>().currentSlot = null;
-    }
-}
+                maKhoaContainer.GetChild(i).GetComponent<ItemDragStep1>().currentSlot = null;
+            }
+        }
 
 
         private void SetupDragStep2()
@@ -274,7 +276,7 @@ namespace MiniGame15
                     return;
                 }
             }
-
+            AudioManager.Instance.PlayDone();
             btnCheck2.gameObject.SetActive(false);
             step3.SetActive(true);
         }
@@ -288,6 +290,7 @@ namespace MiniGame15
             if (textAnswer == curDataAnswer)
             {
                 winEffect.SetActive(true);
+                AudioManager.Instance.PlayWin();
 
                 currentLevel++;
                 ProgressManager.SetProgress(sceneName, currentLevel);

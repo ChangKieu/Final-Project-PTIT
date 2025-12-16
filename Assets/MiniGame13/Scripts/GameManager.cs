@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using DG.Tweening;
+using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -9,13 +10,13 @@ namespace MiniGame13
         public static GameManager Ins;
 
         [Header("Setup")]
-        public Transform spawnPosBall;
-        public GameObject ballPrefab;
+        [SerializeField] private Transform spawnPosBall;
+        [SerializeField] private GameObject ballPrefab;
 
         [Header("Refs")]
-        public PlayerController player;
-        public BotController bot;
-        public Text txtScore;
+        [SerializeField] private PlayerController player;
+        [SerializeField] private BotController bot;
+        [SerializeField] private Text txtScore;
 
         private int scorePlayer = 0;
         private int scoreBot = 0;
@@ -24,6 +25,8 @@ namespace MiniGame13
         private GameObject currentBall;
         private bool isGameOver = true;
 
+        [SerializeField] private Sprite[] winEmo;
+        [SerializeField] private Sprite loseEmo;
         [SerializeField] private GameObject homePanel, winEffect;
         private string sceneName;
         private void Awake()
@@ -78,29 +81,41 @@ namespace MiniGame13
 
         public void PlayerLose()
         {
+            AudioManager.Instance.PlayLose();
             scoreBot++;
             lastWinner = -1;
+
+            player.SetEmo(loseEmo);
+            bot.SetEmo(winEmo[Random.Range(0, winEmo.Length)]);
+
             CheckEnd();
             ResetRound();
         }
 
         public void PlayerWin()
         {
+            AudioManager.Instance.PlayWin();
             scorePlayer++;
             lastWinner = 1;
+
+            player.SetEmo(winEmo[Random.Range(0, winEmo.Length)]);
+            bot.SetEmo(loseEmo);
+
             CheckEnd();
             ResetRound();
         }
 
         void ResetRound()
         {
-            player.ResetPos();
-            bot.ResetPos();
+            
             UpdateScoreText();
 
             Destroy(currentBall);
-
-            Invoke(nameof(SpawnBall), 1f);
+            DOVirtual.DelayedCall(1f, () => {
+                player.ResetPos();
+                bot.ResetPos();
+            });
+            Invoke(nameof(SpawnBall), 1.5f);
         }
 
         void UpdateScoreText()

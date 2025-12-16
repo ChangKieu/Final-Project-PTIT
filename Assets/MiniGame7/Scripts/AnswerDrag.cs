@@ -4,81 +4,110 @@ using UnityEngine.UI;
 
 namespace MiniGame7
 {
-    public class AnswerDrag : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public class AnswerDrag : MonoBehaviour,
+        IBeginDragHandler, IDragHandler, IEndDragHandler
     {
         public int correctIndex;
         public int currentIndex;
 
         [SerializeField] private Text textAnswer;
 
-        private Canvas canvas;
-        private Transform parent;
+        [HideInInspector] public RectTransform rect;
 
-        private Vector3 startLocalPos;
+        private Canvas canvas;
+        private Camera uiCam;
+
+        private Vector2 startPos;
+        private Vector2 offset;
 
         private void Awake()
         {
-            canvas = FindFirstObjectByType<Canvas>();
-            parent = transform.parent;
+            rect = GetComponent<RectTransform>();
+            canvas = GetComponentInParent<Canvas>();
+
+            uiCam = canvas.renderMode == RenderMode.ScreenSpaceOverlay
+                ? null
+                : canvas.worldCamera;
         }
 
         public void SetupAnswer(string answer, int index)
         {
             textAnswer.text = answer;
             correctIndex = index;
-            currentIndex = index;
         }
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            startLocalPos = transform.localPosition;
+            startPos = rect.anchoredPosition;
+
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                rect.parent as RectTransform,
+                eventData.position,
+                uiCam,
+                out Vector2 localMousePos
+            );
+
+            offset = startPos - localMousePos;
             transform.SetAsLastSibling();
         }
 
         public void OnDrag(PointerEventData eventData)
         {
             RectTransformUtility.ScreenPointToLocalPointInRectangle(
-                parent as RectTransform,
+                rect.parent as RectTransform,
                 eventData.position,
-                canvas.worldCamera,
-                out Vector2 localPoint);
+                uiCam,
+                out Vector2 localMousePos
+            );
 
-            transform.localPosition = localPoint;
+            rect.anchoredPosition = localMousePos + offset;
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            AnswerDrag target = GetTargetDrag(eventData);
+            AnswerDrag target = GetNearestAnswer();
 
-            if (target != null && target != this)
+            if (target != null)
             {
-                int indexA = transform.GetSiblingIndex();
-                int indexB = target.transform.GetSiblingIndex();
-
-                transform.SetSiblingIndex(indexB);
-                target.transform.SetSiblingIndex(indexA);
-
-                GameManager.Instance.UpdateIndexOrder();
+                SwapWith(target);
+                AudioManager.Instance.PlayPlace();
             }
             else
             {
-                transform.localPosition = startLocalPos;
+                rect.anchoredPosition = startPos;
             }
         }
 
-        private AnswerDrag GetTargetDrag(PointerEventData data)
+        private void SwapWith(AnswerDrag target)
         {
-            var results = new System.Collections.Generic.List<RaycastResult>();
-            EventSystem.current.RaycastAll(data, results);
+            Vector2 targetPos = target.rect.anchoredPosition;
+            int targetIndex = target.currentIndex;
 
-            foreach (var r in results)
+            target.rect.anchoredPosition = startPos;
+            target.currentIndex = currentIndex;
+
+            rect.anchoredPosition = targetPos;
+            currentIndex = targetIndex;
+        }
+
+        private AnswerDrag GetNearestAnswer()
+        {
+            float minDist = float.MaxValue;
+            AnswerDrag nearest = null;
+
+            foreach (var a in GameManager.Instance.listAnswerDrag)
             {
-                AnswerDrag drag = r.gameObject.GetComponent<AnswerDrag>();
-                if (drag != null && drag != this)
-                    return drag;
+                if (a == this) continue;
+
+                float dist = Vector2.Distance(rect.anchoredPosition, a.rect.anchoredPosition);
+                if (dist < 90f && dist < minDist)
+                {
+                    minDist = dist;
+                    nearest = a;
+                }
             }
 
-            return null;
+            return nearest;
         }
     }
 }

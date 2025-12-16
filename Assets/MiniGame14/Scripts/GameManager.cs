@@ -118,13 +118,28 @@ namespace MiniGame14
         {
             if (obstacleType == player.GetPlayerType())
             {
+                AudioManager.Instance.PlayDone();
+                ClearAllObstacle();
                 SpawnObstacle();
                 RandomPlayerType();
             }
             else
             {
+                AudioManager.Instance.PlayLose();
                 isGameOver = true;
                 NextLevel();
+            }
+        }
+
+        void ClearAllObstacle()
+        {
+            ObstacleController[] obstacles = FindObjectsByType<ObstacleController>(FindObjectsSortMode.None);
+
+            foreach (var obs in obstacles)
+            {
+                GameObject effect = ObjectPooler.Instance.GetObject("DestroyEffect");
+                effect.transform.position = obs.transform.position;
+                ObjectPooler.Instance.ReturnObject(obs.gameObject);
             }
         }
         public bool IsGameOver()

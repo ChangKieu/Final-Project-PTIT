@@ -10,7 +10,7 @@ public class AudioManager : MonoBehaviour
     [SerializeField] private AudioSource sfxSource;
 
     [Header("SFX Clips")]
-    [SerializeField] private AudioClip sfxClick, sfxDone, sfxPlace, sfxMove, sfxMagic;
+    [SerializeField] private AudioClip sfxClick, sfxDone, sfxPlace, sfxMove, sfxMagic, sfxCollision;
     [SerializeField] private AudioClip sfxJump;
     [SerializeField] private AudioClip sfxWin, sfxLose;
 
@@ -112,6 +112,7 @@ public class AudioManager : MonoBehaviour
     }
 
     public void PlayClick() { PlaySFX(sfxClick); }
+    public void PlayCollision() { PlaySFX(sfxCollision); }
     public void PlayDone() { PlaySFX(sfxDone); }
     public void PlayMove() { PlaySFX(sfxMove); }
     public void PlayPlace() { PlaySFX(sfxPlace); }

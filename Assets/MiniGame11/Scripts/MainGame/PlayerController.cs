@@ -143,6 +143,9 @@ namespace MiniGame11
                     return;
                 }
             }
+
+            AudioManager.Instance.PlayPlace();
+
             if (itemCol != null)
             {
                 if(itemPick == null)

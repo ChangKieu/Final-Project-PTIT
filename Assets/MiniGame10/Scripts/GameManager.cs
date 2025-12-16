@@ -151,6 +151,8 @@ namespace MiniGame10
         {
             if (isGameOver) return;
 
+            AudioManager.Instance.PlayClick();
+
             card.FlipOpen();
 
             if (card.number != nextNumber)
@@ -185,6 +187,9 @@ namespace MiniGame10
         void OnWin()
         {
             if (isGameOver) return;
+
+            AudioManager.Instance.PlayWin();
+
             isGameOver = true;
             winEffect.SetActive(true);
 
@@ -202,6 +207,8 @@ namespace MiniGame10
         void Lose()
         {
             if (isGameOver) return;
+
+            AudioManager.Instance.PlayLose();
 
             isGameOver = true;
             NextLevel();

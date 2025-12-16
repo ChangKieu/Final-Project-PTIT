@@ -12,6 +12,7 @@ namespace MiniGame6
         public static GameManager Instance;
 
         [SerializeField] private Transform map;
+        [SerializeField] private GameObject winEffect;
         [SerializeField] private TimelineController timeline;
         private int currentLevel = 0;
         private PlayerController player;
@@ -105,6 +106,7 @@ namespace MiniGame6
         {
             if (!gamePlaying) return;
             Debug.Log("win");
+            winEffect.SetActive(true);
             AudioManager.Instance.PlayWin();
             currentLevel++;
             ProgressManager.SetProgress(sceneName, currentLevel);

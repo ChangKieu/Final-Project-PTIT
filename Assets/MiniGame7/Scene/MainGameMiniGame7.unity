@@ -5632,10 +5632,13 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 6af347d0a1f78e945bc8735e1fc1f6df, type: 3}
   - {fileID: 21300000, guid: de99ccd0a18ef864ba8ecd6374667cec, type: 3}
   hintImg: {fileID: 1411692594}
-  characterAnimator: {fileID: 1858365980}
+  checkImg: {fileID: 1858365978}
+  correctSprite: {fileID: 21300000, guid: 2854d352c885d4d49a913ab924e223ba, type: 3}
+  wrongSprite: {fileID: 21300000, guid: c171603265edee141a5eee43c3e4d97f, type: 3}
   winEffect: {fileID: 1694031652}
-  listAnswerDrag: []
   homePanel: {fileID: 1499900564}
+  listAnswerDrag: []
+  slotPositions: []
 --- !u!4 &861324932
 Transform:
   m_ObjectHideFlags: 0
@@ -11813,7 +11816,6 @@ GameObject:
   - component: {fileID: 1858365977}
   - component: {fileID: 1858365979}
   - component: {fileID: 1858365978}
-  - component: {fileID: 1858365980}
   m_Layer: 5
   m_Name: PK
   m_TagString: Untagged
@@ -11878,28 +11880,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1858365976}
   m_CullTransparentMesh: 1
---- !u!95 &1858365980
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1858365976}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: bd9b3317a6545e747a0274db8b54e6e4, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &1869219063
 GameObject:
   m_ObjectHideFlags: 0

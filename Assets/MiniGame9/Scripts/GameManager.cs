@@ -62,6 +62,7 @@ namespace MiniGame9
 
         public void OnCardClicked(CardController card)
         {
+            AudioManager.Instance.PlayClick();
             if (firstCard == null)
             {
                 firstCard = card;
@@ -79,12 +80,14 @@ namespace MiniGame9
         {
             if (firstCard.id == secondCard.id)
             {
+                AudioManager.Instance.PlayDone();
                 firstCard.HideCard();
                 secondCard.HideCard();
 
                 pairLeft--;
                 if (pairLeft <= 0)
                 {
+                    AudioManager.Instance.PlayWin();
                     winEffect.SetActive(true);
                     ProgressManager.SetDone(sceneName);
                     LoadSceneManager.Instance.ShowPanelDone();

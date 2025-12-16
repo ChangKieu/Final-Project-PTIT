@@ -22,20 +22,24 @@ namespace MiniGame7
         [SerializeField] private GameObject answerPrefab;
         [SerializeField] private Sprite[] listHint;
         [SerializeField] private Image hintImg;
-        [SerializeField] private Animator characterAnimator;
+        [SerializeField] private Image checkImg;
+        [SerializeField] private Sprite correctSprite, wrongSprite;
         [SerializeField] private GameObject winEffect;
-
-        [HideInInspector] public List<AnswerDrag> listAnswerDrag = new List<AnswerDrag>();
-
-        private int currentIndex = 0;
         [SerializeField] private GameObject homePanel;
+
+        [HideInInspector] public List<AnswerDrag> listAnswerDrag = new();
+        [HideInInspector] public List<Vector2> slotPositions = new();
+
+        private int currentIndex;
         private string sceneName;
+
         private void Awake()
         {
             if (Instance == null)
                 Instance = this;
 
             sceneName = SceneManager.GetActiveScene().name;
+
             if (PlayerPrefs.GetInt("Menu" + sceneName, 0) == 0)
             {
                 homePanel.SetActive(true);
@@ -56,17 +60,14 @@ namespace MiniGame7
                 Destroy(child.gameObject);
 
             listAnswerDrag.Clear();
+            slotPositions.Clear();
 
             currentIndex = ProgressManager.GetProgress(sceneName);
-
             if (currentIndex >= listQuestion.Length)
-            {
-                ProgressManager.SetProgress(sceneName, 0);
                 currentIndex = 0;
-            }
-
 
             hintImg.sprite = listHint[currentIndex];
+
             string[] answers = listAnswers[currentIndex].answer;
 
             for (int i = 0; i < answers.Length; i++)
@@ -77,89 +78,84 @@ namespace MiniGame7
                 listAnswerDrag.Add(drag);
             }
 
-            ShuffleAnswers();
+            CreateSlots();
+            RandomizeStartPositions();
         }
 
-        public void AlignAnswers()
+        private void CreateSlots()
         {
             float spacing = 175f;
             int count = listAnswerDrag.Count;
-
             float totalWidth = spacing * (count - 1);
             float startX = -totalWidth / 2f;
 
             for (int i = 0; i < count; i++)
             {
-                listAnswerDrag[i].transform.localPosition =
-                    new Vector3(startX + spacing * i, 0, 0);
-
-                listAnswerDrag[i].currentIndex = i;
+                slotPositions.Add(new Vector2(startX + spacing * i, 0));
             }
         }
 
-        public void ShuffleAnswers()
+        private void RandomizeStartPositions()
         {
-            for (int i = listAnswerDrag.Count - 1; i > 0; i--)
+            List<int> indices = new();
+            for (int i = 0; i < slotPositions.Count; i++)
+                indices.Add(i);
+
+            for (int i = indices.Count - 1; i > 0; i--)
             {
-                int rand = Random.Range(0, i + 1);
-                var temp = listAnswerDrag[i];
-                listAnswerDrag[i] = listAnswerDrag[rand];
-                listAnswerDrag[rand] = temp;
+                int r = Random.Range(0, i + 1);
+                (indices[i], indices[r]) = (indices[r], indices[i]);
             }
 
             for (int i = 0; i < listAnswerDrag.Count; i++)
             {
-                listAnswerDrag[i].transform.SetSiblingIndex(i);
+                int slot = indices[i];
+                listAnswerDrag[i].currentIndex = slot;
+                listAnswerDrag[i].rect.anchoredPosition = slotPositions[slot];
             }
-
-            AlignAnswers();
-        }
-
-        public void UpdateIndexOrder()
-        {
-            listAnswerDrag.Sort((a, b) =>
-                a.transform.GetSiblingIndex().CompareTo(b.transform.GetSiblingIndex()));
-
-            AlignAnswers();
         }
 
         public void CheckAnswers()
         {
             for (int i = 0; i < listAnswerDrag.Count; i++)
             {
-                if (i != listAnswerDrag[i].correctIndex)
+                if (listAnswerDrag[i].currentIndex != listAnswerDrag[i].correctIndex)
                 {
-                    characterAnimator.SetBool("isCorrect", false);
+                    AudioManager.Instance.PlayLose();
+                    checkImg.sprite = wrongSprite;
                     return;
                 }
             }
 
-            characterAnimator.SetBool("isCorrect", true);
+            AudioManager.Instance.PlayWin();
+            checkImg.sprite = correctSprite;
             winEffect.SetActive(true);
 
             currentIndex++;
             ProgressManager.SetProgress(sceneName, currentIndex);
+
             if (currentIndex >= listQuestion.Length)
             {
                 ProgressManager.SetDone(sceneName);
                 LoadSceneManager.Instance.ShowPanelDone();
                 return;
             }
+
             NextLevel();
         }
 
         public void NextLevel()
         {
             PlayerPrefs.SetInt("Menu" + sceneName, 1);
-
             LoadSceneManager.Instance.LoadSceneImg(sceneName);
         }
+
         public void LoadExit()
         {
             PlayerPrefs.SetInt("Menu" + sceneName, 0);
-
             LoadSceneManager.Instance.LoadScene(sceneName);
         }
+
         public void LoadHome()
         {
             LoadSceneManager.Instance.LoadScene("Home");

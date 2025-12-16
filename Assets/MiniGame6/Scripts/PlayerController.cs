@@ -3,9 +3,10 @@ namespace MiniGame6
 {
     public class PlayerController : MonoBehaviour
     {
-        public float moveSpeed = 4f;
         public bool isMoving = false;
-        public Vector3 direction = Vector3.right;
+        [SerializeField] private float moveSpeed = 4f;
+        [SerializeField] private Vector3 direction = Vector3.right;
+        [SerializeField] private GameObject loseEffect;
 
         private void Update()
         {
@@ -18,6 +19,8 @@ namespace MiniGame6
 
         private void OnCollisionEnter2D(Collision2D collision)
         {
+            Vector3 hitPoint = collision.contacts[0].point;
+            Instantiate(loseEffect, hitPoint, Quaternion.identity);
             GameManager.Instance.Lose();
         }
     }

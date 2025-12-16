@@ -6,27 +6,48 @@ namespace Minigame3
 {
     public class FloatingObject : MonoBehaviour
     {
+        [SerializeField] private bool isSprite = false;
+
         [SerializeField] private float floatAmount = 10f;
         [SerializeField] private float duration = 1f;
         [SerializeField] private float delay = 1f;
 
         private RectTransform rectTransform;
-        private float startY;
+        private SpriteRenderer spriteRenderer;
+
+        private float startY_UI;
+        private float startY_World;
 
         void Start()
         {
-            rectTransform = GetComponent<RectTransform>();
-            startY = rectTransform.anchoredPosition.y;
+            if (isSprite)
+            {
+                spriteRenderer = GetComponent<SpriteRenderer>();
+                startY_World = transform.position.y;
+            }
+            else
+            {
+                rectTransform = GetComponent<RectTransform>();
+                startY_UI = rectTransform.anchoredPosition.y;
+            }
 
-            Invoke("StartFloating", delay);
+            Invoke(nameof(StartFloating), delay);
         }
 
         void StartFloating()
         {
-            rectTransform.DOAnchorPosY(startY + floatAmount, duration)
-                .SetEase(Ease.InOutSine)
-                .SetLoops(-1, LoopType.Yoyo);
+            if (isSprite)
+            {
+                transform.DOMoveY(startY_World + floatAmount, duration)
+                    .SetEase(Ease.InOutSine)
+                    .SetLoops(-1, LoopType.Yoyo);
+            }
+            else
+            {
+                rectTransform.DOAnchorPosY(startY_UI + floatAmount, duration)
+                    .SetEase(Ease.InOutSine)
+                    .SetLoops(-1, LoopType.Yoyo);
+            }
         }
     }
-
 }

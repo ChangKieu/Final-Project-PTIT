@@ -46,6 +46,7 @@ namespace MiniGame15
 
         public void OnEndDrag(PointerEventData eventData)
         {
+            AudioManager.Instance.PlayPlace();
             Transform target = GameManager.Instance.GetSwapTargetStep2(eventData.position);
 
             if (target != null && target != transform)

@@ -1748,6 +1748,7 @@ MonoBehaviour:
   sfxPlace: {fileID: 8300000, guid: 9949dd80173e669479da1c5f26cd3b98, type: 3}
   sfxMove: {fileID: 8300000, guid: 3db1ee2ee6bb3da45be6d263e6996f60, type: 3}
   sfxMagic: {fileID: 8300000, guid: f29f535692310844f8a53b45de3107a4, type: 3}
+  sfxCollision: {fileID: 8300000, guid: fe2cbb3557b32ae468e6fa38f3002c75, type: 3}
   sfxJump: {fileID: 8300000, guid: cea05df294151174aa0f4a0e8083a10a, type: 3}
   sfxWin: {fileID: 8300000, guid: 6e01ebaeda5ae834b8666107b597991d, type: 3}
   sfxLose: {fileID: 8300000, guid: f330ba2d7db14be44aec32c6ae7dcad3, type: 3}
@@ -3423,6 +3424,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b53db28afa4f9374793e79998138481c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isSprite: 0
   floatAmount: 10
   duration: 1
   delay: 1

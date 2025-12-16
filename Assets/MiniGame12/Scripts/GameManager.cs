@@ -94,7 +94,7 @@ namespace MiniGame12
             }
             else
             {
-                Debug.Log("Wrong");
+                AudioManager.Instance.PlayLose();
             }
         }
 
@@ -124,6 +124,7 @@ namespace MiniGame12
         private void Next()
         {
             winEffect.SetActive(true);
+            AudioManager.Instance.PlayWin();
 
             currentLevel++;
             ProgressManager.SetProgress(sceneName, currentLevel);

@@ -53,6 +53,12 @@ namespace MiniGame13
             transform.position = pos;
         }
 
+        public void SetEmo(Sprite emo)
+        {
+            transform.GetChild(0).gameObject.SetActive(true);
+            transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = emo;
+        }
+
         private void OnCollisionEnter2D(Collision2D collision)
         {
             if (collision.collider.CompareTag("Ground"))
@@ -61,6 +67,7 @@ namespace MiniGame13
 
         public void ResetPos()
         {
+            transform.GetChild(0).gameObject.SetActive(false);
             transform.position = startPos;
             rb.linearVelocity = Vector2.zero;
         }

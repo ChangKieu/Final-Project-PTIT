@@ -32,6 +32,8 @@ namespace MiniGame8
         [SerializeField] private Image imgLeft;
         [SerializeField] private Image imgRight;
 
+        [SerializeField] private Text txtLevel;
+
         [SerializeField] private GameObject diffPointPrefab;
         [SerializeField] private Transform pointsLeftParent;
         [SerializeField] private Transform pointsRightParent;
@@ -79,6 +81,7 @@ namespace MiniGame8
             }
 
             foundCount = 0;
+            txtLevel.text = "LEVEL " + (currentLevel + 1).ToString();
 
             for (int i = 0; i < starContainer.childCount; i++)
                 starContainer.GetChild(i).GetChild(0).gameObject.SetActive(false);

@@ -534,6 +534,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b53db28afa4f9374793e79998138481c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isSprite: 0
   floatAmount: 10
   duration: 1
   delay: 1
@@ -549,7 +550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bd808c83b6d4d0b489e036fc75f2618e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ScaleTo: {x: 1, y: 1, z: 1}
+  ScaleTo: {x: 0.25, y: 0.25, z: 0.25}
   AnimateTime: 0.5
   Delay: 0
   EaseType: 27

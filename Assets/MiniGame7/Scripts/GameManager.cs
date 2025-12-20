@@ -26,6 +26,7 @@ namespace MiniGame7
         [SerializeField] private Sprite correctSprite, wrongSprite;
         [SerializeField] private GameObject winEffect;
         [SerializeField] private GameObject homePanel;
+        [SerializeField] private Text txtQuestion;
 
         [HideInInspector] public List<AnswerDrag> listAnswerDrag = new();
         [HideInInspector] public List<Vector2> slotPositions = new();
@@ -66,6 +67,7 @@ namespace MiniGame7
             if (currentIndex >= listQuestion.Length)
                 currentIndex = 0;
 
+            txtQuestion.text = listQuestion[currentIndex];
             hintImg.sprite = listHint[currentIndex];
 
             string[] answers = listAnswers[currentIndex].answer;

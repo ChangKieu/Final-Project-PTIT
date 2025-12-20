@@ -5584,6 +5584,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b53db28afa4f9374793e79998138481c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isSprite: 0
   floatAmount: 10
   duration: 1
   delay: 1
@@ -6153,6 +6154,7 @@ MonoBehaviour:
       size: {x: 27.31, y: 26.48}
   imgLeft: {fileID: 1336162331}
   imgRight: {fileID: 71479817}
+  txtLevel: {fileID: 1207845244}
   diffPointPrefab: {fileID: 8253389752331735711, guid: 1903df563e58c48478903112702f3777, type: 3}
   pointsLeftParent: {fileID: 842917213}
   pointsRightParent: {fileID: 1448573286}

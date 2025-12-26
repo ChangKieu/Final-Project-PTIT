@@ -26,7 +26,7 @@ namespace MiniGame10
         [SerializeField] private GridLayoutGroup grid;
 
         [SerializeField] private GameObject winEffect;
-        [SerializeField] private Text txtLevel, txtTime;
+        [SerializeField] private Text txtLevel;
         private List<CardController> spawnedCards = new List<CardController>();
         private CardController lastWrongCard;
 
@@ -64,7 +64,6 @@ namespace MiniGame10
             isGameOver = false;
             SetupGrid();
             CreateLevel();
-            SetupTimer();
         }
 
         void SetupGrid()
@@ -117,35 +116,6 @@ namespace MiniGame10
                 spawnedCards.Add(card);
             }
         }
-
-        void SetupTimer()
-        {
-            if (timerRoutine != null)
-                StopCoroutine(timerRoutine);
-
-            if (levelCardCount == 4) timeRemaining = 30;
-            else if (levelCardCount == 5) timeRemaining = 45;
-            else timeRemaining = 60;
-
-            txtTime.text = timeRemaining + "s";
-
-            timerRoutine = StartCoroutine(TimerCountdown());
-        }
-
-        IEnumerator TimerCountdown()
-        {
-            while (timeRemaining > 0 && !isGameOver)
-            {
-                yield return new WaitForSeconds(1f);
-
-                timeRemaining--;
-                txtTime.text = timeRemaining + "s";
-            }
-
-            if (!isGameOver && timeRemaining <= 0)
-                Lose();
-        }
-
 
         public void OnCardClicked(CardController card)
         {
@@ -204,15 +174,6 @@ namespace MiniGame10
             NextLevel();
         }
 
-        void Lose()
-        {
-            if (isGameOver) return;
-
-            AudioManager.Instance.PlayLose();
-
-            isGameOver = true;
-            NextLevel();
-        }
 
         void Shuffle<T>(List<T> list)
         {
